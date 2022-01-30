@@ -10,9 +10,62 @@ export default class KanbanBoard extends Component {
       tasks: [
             { name: '1', stage: 0 },
             { name: '2', stage: 0 },
-        ]
+        ],
+        taskNameInput: ''
     };
     this.stagesNames = ['Backlog', 'To Do', 'Ongoing', 'Done'];
+  }
+
+  onTaskNameInputChange = (e) => {
+    this.setState({
+      taskNameInput: e.target.value
+    });
+  }
+
+  addTask = () => {
+    if (this.state.taskNameInput) {
+      const tempTasks = this.state.tasks;
+      tempTasks.push({
+        name: this.state.taskNameInput, stage: 0
+      });
+
+      this.setState({
+        tasks: tempTasks, taskNameInput: ''
+      });
+    }
+  }
+
+  removeTask = (name) => {
+    let tempTasks = this.state.tasks;
+    tempTasks = tempTasks.filter(e => e.name != name);
+
+    this.setState({
+      tasks: tempTasks
+    });
+  }
+
+  moveForward = (name) => {
+    let tempTasks = this.state.tasks;
+    tempTasks = tempTasks.map((task) => {
+      if (task.name == name) return { name: task.name, stage: task.stage == 3 ? 3 : task.stage + 1 };
+      else return task;
+    });
+
+    this.setState({
+      tasks: tempTasks
+    });
+  }
+
+  moveBackward = (name) => {
+    let tempTasks = this.state.tasks;
+    tempTasks = tempTasks.map((task) => {
+      if (task.name == name) return { name: task.name, stage: task.stage == 0 ? 0 : task.stage - 1 };
+      else return task;
+    });
+
+    this.setState({
+      tasks: tempTasks
+    });
   }
 
   render() {
@@ -30,8 +83,8 @@ export default class KanbanBoard extends Component {
     return (
       <div className="mt-20 layout-column justify-content-center align-items-center">
         <section className="mt-50 layout-row align-items-center justify-content-center">
-          <input id="create-task-input" type="text" className="large" placeholder="New task name" data-testid="create-task-input"/>
-          <button type="submit" className="ml-30" data-testid="create-task-button">Create task</button>
+          <input id="create-task-input" type="text" className="large" placeholder="New task name" data-testid="create-task-input" value={this.state.taskNameInput} onChange={this.onTaskNameInputChange}/>
+          <button type="submit" className="ml-30" data-testid="create-task-button" onClick={this.addTask}>Create task</button>
         </section>
 
         <div className="mt-50 layout-row">
@@ -46,13 +99,13 @@ export default class KanbanBoard extends Component {
                                       <div className="li-content layout-row justify-content-between align-items-center">
                                         <span data-testid={`${task.name.split(' ').join('-')}-name`}>{task.name}</span>
                                         <div className="icons">
-                                          <button className="icon-only x-small mx-2" data-testid={`${task.name.split(' ').join('-')}-back`}>
+                                          <button className="icon-only x-small mx-2" data-testid={`${task.name.split(' ').join('-')}-back`} onClick={() => this.moveBackward(task.name)}>
                                             <i className="material-icons">arrow_back</i>
                                           </button>
-                                          <button className="icon-only x-small mx-2" data-testid={`${task.name.split(' ').join('-')}-forward`}>
+                                          <button className="icon-only x-small mx-2" data-testid={`${task.name.split(' ').join('-')}-forward`} onClick={() => this.moveForward(task.name)}>
                                             <i className="material-icons">arrow_forward</i>
                                           </button>
-                                          <button className="icon-only danger x-small mx-2" data-testid={`${task.name.split(' ').join('-')}-delete`}>
+                                          <button className="icon-only danger x-small mx-2" data-testid={`${task.name.split(' ').join('-')}-delete`} onClick={() => this.removeTask(task.name)}>
                                             <i className="material-icons">delete</i>
                                           </button>
                                         </div>
